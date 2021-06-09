@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+  
+    
+    <entry>
+      <title>Mysql调优</title>
+      <link href="/2021/06/09/mysql-diao-you/"/>
+      <url>/2021/06/09/mysql-diao-you/</url>
+      
+        <content type="html"><![CDATA[<h2 id="sql调优的几种方式"><a class="markdownIt-Anchor" href="#sql调优的几种方式">#</a> Sql 调优的几种方式</h2><ol><li><p>在表中建立索引，优先选择 where 、group by 使用到的字段</p><ul><li>在经常需要进行检索的字段上创建索引。</li><li>一个表的索引数最好不要超过 6 个。索引可以提高响应的 select 速度，但降低了 insert 和 update 的效率，因为 insert 和 update 时有可能会重建索引，创建索引需要慎重考虑，视具体情况而定</li></ul></li><li><p>尽量避免使用 select * ，返回无用的字段会降低查询效率。</p><p>如： <code>select * from table</code></p><p>优化方式：使用具体的字段代替 *，只返回有用的字段。如： <code>select name ,age from table</code></p></li><li><p>尽量避免使用 in 和 not in，会导致索引失效从而进行全表扫描。</p><p>如： <code>select * from table where id in (1,2)）</code></p><p>​ <code>select * from table where username in (select username form table2)</code></p><p>优化方式：如果是连续数值，可以使用 between 代替。如下：</p><p>​ <code>select * from table where id between1 and 2</code></p><p>如果是子查询，可以使用 exists 代替。如下：</p><p>​ <code>select * from table where exists(select * from table2 where table.username = table2.username)</code></p></li><li><p>应尽量避免使用 or，会导致数据库引擎放弃索引进行全表扫描。</p><p>如： <code>select * from table where id = 3 or id =1</code></p><p>优化方式： <code>select * from table where id = 1 union select * from table id = 3</code></p></li><li><p>尽量避免在字段开头进行模糊查询，会导致数据库引擎放弃索引进行全表扫描</p><p>如： <code>select * from table where username like '%li%'</code></p><p>优化方式：尽量在字段后面使用模糊查询，如下：</p><p>​ <code>select* from table where username like 'li%'</code></p></li><li><p>尽量避免进行 null 值的判断，会导致数据库引擎放弃索引进行全表扫描。</p><p>如： <code>select * from table where score is null</code></p><p>优化方式：给自担添加默认值 0，对 0 值进行判断。</p><p>​ <code>select * from table where score =0</code></p></li><li><p>避免在 where 条件中对索引列（= 左边的）进行表达式、函数操作，会导致数据库放弃索引进行全表扫描</p><p>如下：</p><p>​ <code>select * from table where id / 10  = 2</code></p><p>​ <code>select * from table where substr(username ,1 , 2) = 'li'</code></p><p>优化方式：将表达式、函数操作移动到等号右侧，如下：</p><p>​ <code>select * from table where id = 10 * 2</code></p><p>​ <code>select * from table where username like 'li%'</code></p></li><li><p>数据量大时，避免使用 where 1 = 1 条件。通常为了方便拼装查询条件，我们会默认使用该条件，数据库引擎会放弃索引进行全表扫描。</p><p>如下： <code>select * form table where 1 = 1</code></p><p>优化方式：用代码拼装 sql 时进行判断，没 where 加 where，有 where 加 and。</p></li><li><p>尽量将多条 sql 语句压缩到一条 sql 中</p></li><li><p>用 where 替代 having</p><ul><li>避免使用 having，因为 having 是在检索出所有记录后对结果集进行筛选，而 where 是在聚合前筛选记录。</li><li>如功能通过 where 限制记录的数目，就能减少开销</li></ul></li><li><p>使用表的别名</p><ul><li>当连接多个表时，使用表的别名并且把别名前缀与每个列名上，减少解析时间</li></ul></li><li><p>用 varchar、nvarchar 代替 char、nchar</p></li></ol>]]></content>
+      
+      
+      <categories>
+          
+          <category> 数据库 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Mysql </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+  
+  
+</search>
